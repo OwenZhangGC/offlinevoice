@@ -1,64 +1,72 @@
-# OfflineVoice v0.2.0
+# OfflineVoice v0.3.0
 
-**Speak anywhere. Type nowhere.** Private, offline voice input for your Mac.
+**The fastest local dictation for Mac.** Private, offline voice input — now near-instant.
 
-OfflineVoice turns your speech into polished text in any app — hold one key, talk,
-release, and the text is pasted at your cursor. Transcription and cleanup run
-entirely on your Mac. No account, no subscription, no cloud upload.
+OfflineVoice turns your speech into text in any app — hold one key, talk, release, and
+the text is pasted at your cursor. Because it runs entirely on your Mac, it's faster
+*and* more private than cloud-based tools. No account, no subscription, no cloud upload.
 
 🔗 **Website:** https://www.offlinevoice.ai
 ⬇️ **Download:** [OfflineVoice-mac.dmg](https://www.offlinevoice.ai/downloads/OfflineVoice-mac.dmg)
 
 ---
 
+## What's new in 0.3.0
+
+**OfflineVoice is now the fastest local dictation for Mac.** The default engine
+switched to Apple's native on-device speech recognition, so your words appear almost
+the instant you stop talking — no model download, no cloud round-trip, no wait.
+
+We also stripped the pipeline down to its fastest path:
+
+```
+Hold key → on-device speech recognition → paste
+```
+
+That means the old LLM/Ollama **cleanup** step is gone — there's no rewrite stage
+between your voice and the text anymore. The **Dictionary** (hotwords) page and the
+**Personalization** (per-app tone) page have been **removed** too. The result is a
+simpler, faster, no-rewrite experience that just transcribes what you say and pastes it.
+
+## Two recognition modes
+
+Choose your engine in **Privacy & Local AI**:
+
+- **Speed (default)** — Apple's native on-device recognition. Near-instant, the
+  lightest option, with zero extra downloads.
+- **Accuracy** — Whisper (large-v3 turbo). More accurate for English and technical or
+  specialized content. The model downloads once on first use, then works fully offline.
+
+Either way, everything runs on your Mac.
+
 ## Highlights
 
-- **100% local** — speech recognition (WhisperKit) and optional cleanup (Ollama) run
-  on-device. Your audio and text never leave your Mac.
-- **Works in every app** — pastes into the focused text field across native Mac apps.
+- **The fastest local dictation** — Speed mode returns text almost instantly.
+- **100% local** — transcription runs on-device (Apple on-device, or optional Whisper).
+  Your audio and text never leave your Mac.
+- **Works in any app** — pastes into the focused text field across your Mac apps.
 - **Hold-to-talk** — hold **Right Option** (configurable), speak, release to paste.
-- **Chinese + English** — built for Chinese, English, and mixed-language dictation.
-- **Per-app tone & hotwords** — pick a writing tone per app and fix recurring
-  mis-hears with a local dictionary.
-- **Signed & notarized** — opens normally, no Gatekeeper warning.
-
-## What's new in 0.2
-
-- Dock-visible app with a menu-bar status icon and a guided first-run onboarding.
-- Full main window: Home, Settings, Shortcuts, Privacy & Local AI, Dictionary,
-  Personalization, About.
-- Configurable hold-to-talk key (dropdown picker with Confirm).
-- Live engine/model switching — no restart needed.
-- Clear handling when Accessibility isn't granted yet: your dictation is copied to
-  the clipboard (press ⌘V) with an in-app prompt to enable auto-paste.
-- Developer ID signing + Apple notarization.
-- Reliability fixes: state guards against rapid key presses, safe clipboard restore,
-  model-load error surfacing with retry.
+- **Signed & notarized** — Developer ID signed and Apple notarized; double-click to
+  open with no Gatekeeper warning.
 
 ## Requirements
 
 - **Apple Silicon Mac (M1 or newer)** — Intel Macs are not supported.
 - **macOS 14 (Sonoma) or later.**
-- **~2 GB free disk** — the local Whisper model is downloaded once on first use
-  (~1.5 GB) and cached for offline use afterward.
-- *Recommended:* 16 GB unified memory (8 GB works for dictation alone).
-- *(Optional)* [Ollama](https://ollama.com) running `qwen2.5:7b-instruct` for
-  filler-word/punctuation cleanup. Without it, you get the raw local transcription.
+- **~2 GB free disk** — only if you choose **Accuracy** mode. The Whisper model is
+  downloaded once on first use (~1.5 GB) and cached for offline use afterward. Speed
+  mode needs no download.
 
 ## Install
 
 1. Download and open the DMG, drag **OfflineVoice** to Applications, and launch it.
-2. Grant **Microphone** and **Accessibility** when prompted (Accessibility is what
-   lets OfflineVoice paste into other apps).
+2. Grant **Microphone**, **Speech Recognition**, and **Accessibility** when prompted
+   (Accessibility is what lets OfflineVoice paste into other apps).
 3. Hold **Right Option**, speak, release.
-
-## Known limitations
-
-- Translate and Ask Anything are future modes, disabled in v0.2.
-- This is an early preview — feedback welcome.
 
 ## Privacy
 
-OfflineVoice does not upload your audio, does not sync transcripts, and does not
-train on your data. Model files are cached locally after first download.
+100% local. Transcription happens on your Mac (Apple on-device, or optional Whisper).
+OfflineVoice does not upload your audio, does not sync transcripts, and does not train
+on your data. Model files are cached locally after first download and work offline.
 See the [privacy policy](https://www.offlinevoice.ai/#privacy-policy).
