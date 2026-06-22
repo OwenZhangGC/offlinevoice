@@ -23,15 +23,17 @@ import {
 } from "lucide-react";
 import {
   SiCursor,
+  SiGithub,
 } from "@icons-pack/react-simple-icons";
 
 const navItems = ["Why OfflineVoice", "Speed", "Privacy", "How it works", "FAQ"];
 const downloadHref = "/downloads/OfflineVoice-mac.dmg";
+const githubHref = "https://github.com/OwenZhangGC/offlinevoice";
 
 const proofItems = [
   { label: "Fastest local dictation", icon: Zap },
   { label: "100% on-device", icon: LockKeyhole },
-  { label: "No subscription", icon: Ban },
+  { label: "Free & open source", icon: SiGithub },
 ];
 
 const steps = [
@@ -279,6 +281,10 @@ export function App() {
               </a>
             ))}
           </nav>
+          <a className="github-link" href={githubHref} target="_blank" rel="noreferrer" aria-label="OfflineVoice on GitHub — open source">
+            <SiGithub size={18} color="currentColor" />
+            <span>GitHub</span>
+          </a>
           <DownloadLink className="download-small">
             Download for Mac
           </DownloadLink>
@@ -294,6 +300,10 @@ export function App() {
                 {item}
               </a>
             ))}
+            <a className="mobile-github" href={githubHref} target="_blank" rel="noreferrer" onClick={() => setMenuOpen(false)}>
+              <SiGithub size={18} color="currentColor" />
+              View source on GitHub
+            </a>
             <DownloadLink className="mobile-download" onClick={() => setMenuOpen(false)}>
               Download for Mac
             </DownloadLink>
@@ -584,9 +594,12 @@ export function App() {
         <footer className="site-footer">
           <BrandMark compact />
           <span>OfflineVoice.ai</span>
-          <p>v0.3.0 · The fastest local voice dictation for Mac.</p>
+          <p>v0.3.0 · The fastest local voice dictation for Mac. Free &amp; open source (GPL-3.0).</p>
           <p className="footer-links">
             <a href="#privacy-policy">Privacy Policy</a>
+            <a href={githubHref} target="_blank" rel="noreferrer">
+              <SiGithub size={15} color="currentColor" /> Source on GitHub
+            </a>
           </p>
         </footer>
       </main>

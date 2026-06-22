@@ -24,10 +24,11 @@ service/models/
 __pycache__/
 *.pyc
 
-# ── Website (Next.js on Vercel) ──
+# ── Website (Vite + React on Vercel) ──
 website/node_modules/
 website/.next/
 website/out/
+website/dist/
 website/.npm-cache/
 website/.vercel/
 website/.npmrc
