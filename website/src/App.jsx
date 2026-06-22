@@ -312,6 +312,13 @@ export function App() {
 
         <section id="top" className="hero-section">
           <div className="hero-copy">
+            <a className="hero-badge" href={githubHref} target="_blank" rel="noreferrer">
+              <SiGithub size={15} color="currentColor" />
+              <strong>Open source</strong>
+              <span className="hero-badge-sep" aria-hidden="true" />
+              GPL-3.0 · runs 100% on your Mac
+              <ChevronRight size={15} strokeWidth={2.6} />
+            </a>
             <h1>
               The fastest local
               <span>voice dictation for Mac.</span>
@@ -319,7 +326,11 @@ export function App() {
             <p className="hero-lede">
               Hold one hotkey and talk. Because OfflineVoice runs entirely on
               your Mac, there's no cloud round-trip — so it's faster, and more
-              private, than tools that send your voice away.
+              private, than tools that send your voice away. And it's{" "}
+              <a className="lede-link" href={githubHref} target="_blank" rel="noreferrer">
+                fully open source
+              </a>
+              .
             </p>
             <div className="hero-actions">
               <DownloadLink className="primary-cta">
@@ -346,7 +357,7 @@ export function App() {
             </div>
             <p className="local-line">
               <ShieldCheck size={17} />
-              100% on-device. No cloud, no account, no subscription.
+              100% on-device and open source. No cloud, no account, no subscription.
             </p>
           </div>
 

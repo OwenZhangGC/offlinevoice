@@ -190,6 +190,61 @@ a {
   font-weight: 680;
 }
 
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  width: fit-content;
+  margin-bottom: 22px;
+  padding: 7px 14px;
+  border: 1px solid rgba(255, 208, 0, 0.38);
+  border-radius: 999px;
+  background: rgba(255, 208, 0, 0.09);
+  color: #ececef;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.hero-badge strong {
+  color: var(--yellow);
+  font-weight: 820;
+}
+
+.hero-badge .hero-badge-sep {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.hero-badge svg:last-child {
+  color: var(--yellow);
+  transition: transform 160ms ease;
+}
+
+.hero-badge:hover {
+  transform: translateY(-1px);
+  border-color: var(--yellow);
+  background: rgba(255, 208, 0, 0.14);
+}
+
+.hero-badge:hover svg:last-child {
+  transform: translateX(2px);
+}
+
+.lede-link {
+  color: var(--yellow);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+}
+
 .icon-button {
   display: inline-flex;
   align-items: center;
