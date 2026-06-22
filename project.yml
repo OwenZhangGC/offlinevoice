@@ -1,0 +1,87 @@
+name: OfflineVoice
+options:
+  bundleIdPrefix: com.oz
+  deploymentTarget:
+    macOS: "13.0"
+    iOS: "16.0"
+  createIntermediateGroups: true
+packages:
+  WhisperKit:
+    url: https://github.com/argmaxinc/argmax-oss-swift.git
+    from: "0.9.0"
+targets:
+  OfflineVoice:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+      - path: Resources/Assets.xcassets
+        buildPhase: resources
+      # Dev-only engine benchmark corpus (a few hundred KB of TTS WAVs + refs).
+      # Bundled so the benchmark works from an installed build too; harmless in a
+      # release until we gate it out.
+      - path: Resources/benchmark
+        buildPhase: resources
+    dependencies:
+      - package: WhisperKit
+        product: WhisperKit
+    info:
+      path: Resources/Info.plist
+      properties:
+        CFBundleDisplayName: OfflineVoice
+        CFBundleShortVersionString: "0.3.0"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        NSMicrophoneUsageDescription: "OfflineVoice 需要麦克风来做语音输入。"
+        NSSpeechRecognitionUsageDescription: "OfflineVoice 用苹果原生本地语音识别把你的话转成文字，全程在本机进行。"
+        NSHumanReadableCopyright: ""
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.oz.offlinevoice
+        MARKETING_VERSION: "0.3.0"
+        CURRENT_PROJECT_VERSION: "2"
+        SWIFT_VERSION: "5.10"
+        MACOSX_DEPLOYMENT_TARGET: "13.0"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_HARDENED_RUNTIME: NO
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGNING_ALLOWED: NO
+
+  # iOS host app. Reuses the platform-agnostic core (ASR protocol, Apple-native
+  # engine, audio capture, logger) by referencing those files directly — they
+  # stay in Sources/ so the macOS target is untouched. No global hotkey / paste /
+  # menu bar here; those are impossible in the iOS sandbox.
+  OfflineVoiceiOS:
+    type: application
+    platform: iOS
+    sources:
+      - path: iOSApp
+      - path: Sources/ASR/ASREngine.swift
+      - path: Sources/ASR/AppleSpeechEngine.swift
+      - path: Sources/AudioRecorder.swift
+      - path: Sources/Log.swift
+    info:
+      path: Resources/Info-iOS.plist
+      properties:
+        CFBundleDisplayName: OfflineVoice
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        UILaunchScreen: {}
+        NSMicrophoneUsageDescription: "OfflineVoice 需要麦克风来做语音输入。"
+        NSSpeechRecognitionUsageDescription: "OfflineVoice 用苹果原生本地语音识别把你的话转成文字，全程在本机进行。"
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.oz.offlinevoice.ios
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.10"
+        IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+        TARGETED_DEVICE_FAMILY: "1"
+        # Automatic signing with the user's known team (same as AstroMatch) so a
+        # real-device build works without touching the Signing UI. Simulator
+        # builds don't need signing either way.
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: H6E9M3Z7YM

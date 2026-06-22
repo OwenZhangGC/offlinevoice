@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BUILD_DIR="$ROOT_DIR/build"
+RELEASE_APP="$BUILD_DIR/Build/Products/Release/OfflineVoice.app"
+DIST_DIR="$ROOT_DIR/dist"
+DMG_STAGING="$DIST_DIR/dmg-staging"
+ENTITLEMENTS="$ROOT_DIR/Resources/OfflineVoice.entitlements"
+
+# Distribution signing is opt-in via env vars so a checkout with no Apple
+# Developer ID still builds a working ad-hoc DMG.
+#   DEVELOPER_ID_IDENTITY  e.g. "Developer ID Application: Your Name (TEAMID)"
+#   NOTARY_PROFILE         keychain profile from `xcrun notarytool store-credentials`
+#                          (omit to sign + staticly verify but skip notarization)
+DEVELOPER_ID_IDENTITY="${DEVELOPER_ID_IDENTITY:-}"
+NOTARY_PROFILE="${NOTARY_PROFILE:-}"
+
+# Only a Developer ID build may write the public download the website serves.
+# An ad-hoc (unsigned) build goes to a local-preview path and never touches the
+# notarized DMG that users download.
+if [[ -n "$DEVELOPER_ID_IDENTITY" ]]; then
+  OUTPUT_DIR="$ROOT_DIR/website/public/downloads"
+  DMG_PATH="$OUTPUT_DIR/OfflineVoice-mac.dmg"
+else
+  OUTPUT_DIR="$DIST_DIR/local-preview"
+  DMG_PATH="$OUTPUT_DIR/OfflineVoice-unsigned.dmg"
+fi
+
+cd "$ROOT_DIR"
+
+xcodebuild \
+  -project OfflineVoice.xcodeproj \
+  -scheme OfflineVoice \
+  -configuration Release \
+  -destination 'platform=macOS' \
+  -derivedDataPath "$BUILD_DIR" \
+  build
+
+if [[ ! -d "$RELEASE_APP" ]]; then
+  echo "Release app was not produced at $RELEASE_APP" >&2
+  exit 1
+fi
+
+mkdir -p "$DIST_DIR" "$OUTPUT_DIR"
+rm -rf "$DMG_STAGING" "$DMG_PATH" "$DMG_PATH.sha256"
+mkdir -p "$DMG_STAGING"
+
+cp -R "$RELEASE_APP" "$DMG_STAGING/OfflineVoice.app"
+STAGED_APP="$DMG_STAGING/OfflineVoice.app"
+ln -s /Applications "$DMG_STAGING/Applications"
+
+if [[ -f "$ROOT_DIR/Resources/OfflineVoice.icns" ]]; then
+  cp "$ROOT_DIR/Resources/OfflineVoice.icns" "$DMG_STAGING/.VolumeIcon.icns"
+  if command -v SetFile >/dev/null 2>&1; then
+    SetFile -a C "$DMG_STAGING"
+  fi
+fi
+
+if [[ -n "$DEVELOPER_ID_IDENTITY" ]]; then
+  echo "==> Developer ID signing with Hardened Runtime"
+  # Sign nested code (frameworks / dylibs) inner-to-outer before the .app so the
+  # outer signature is valid without the deprecated --deep flag.
+  while IFS= read -r -d '' nested; do
+    codesign --force --options runtime --timestamp \
+      --sign "$DEVELOPER_ID_IDENTITY" "$nested"
+  done < <(find "$STAGED_APP/Contents/Frameworks" \
+    \( -name "*.framework" -o -name "*.dylib" \) -print0 2>/dev/null || true)
+
+  codesign --force --options runtime --timestamp \
+    --entitlements "$ENTITLEMENTS" \
+    --sign "$DEVELOPER_ID_IDENTITY" "$STAGED_APP"
+
+  echo "==> Verifying app signature"
+  codesign --verify --deep --strict --verbose=2 "$STAGED_APP"
+  spctl -a -t exec -vv "$STAGED_APP" || echo "(spctl will pass once notarized)"
+else
+  echo "==> No DEVELOPER_ID_IDENTITY set; ad-hoc signing (unsigned preview build)"
+  echo "    This is a local, UNSIGNED preview and will NOT be published."
+  echo "    Output goes to $DMG_PATH (the website download is left untouched)."
+  # Ad-hoc signing helps local unsigned builds open consistently. It is not notarization.
+  codesign --force --deep --sign - "$STAGED_APP"
+fi
+
+hdiutil create \
+  -volname "OfflineVoice" \
+  -srcfolder "$DMG_STAGING" \
+  -ov \
+  -format UDZO \
+  "$DMG_PATH"
+
+if [[ -n "$DEVELOPER_ID_IDENTITY" ]]; then
+  echo "==> Signing DMG"
+  codesign --force --timestamp --sign "$DEVELOPER_ID_IDENTITY" "$DMG_PATH"
+
+  if [[ -n "$NOTARY_PROFILE" ]]; then
+    echo "==> Submitting DMG for notarization (this can take a few minutes)"
+    xcrun notarytool submit "$DMG_PATH" --keychain-profile "$NOTARY_PROFILE" --wait
+    echo "==> Stapling notarization ticket"
+    xcrun stapler staple "$DMG_PATH"
+    xcrun stapler validate "$DMG_PATH"
+    spctl -a -t open --context context:primary-signature -vv "$DMG_PATH" || true
+  else
+    echo "==> NOTARY_PROFILE not set; skipping notarization + stapling."
+    echo "    Gatekeeper will still block this DMG on other Macs until notarized."
+  fi
+fi
+
+shasum -a 256 "$DMG_PATH" > "$DMG_PATH.sha256"
+echo "Created $DMG_PATH"
