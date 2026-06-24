@@ -1,4 +1,4 @@
-# OfflineVoice v0.3.0
+# OfflineVoice v0.3.1
 
 **The fastest local dictation for Mac.** Private, offline voice input — now near-instant.
 
@@ -11,22 +11,18 @@ the text is pasted at your cursor. Because it runs entirely on your Mac, it's fa
 
 ---
 
-## What's new in 0.3.0
+## What's new in 0.3.1
 
-**OfflineVoice is now the fastest local dictation for Mac.** The default engine
-switched to Apple's native on-device speech recognition, so your words appear almost
-the instant you stop talking — no model download, no cloud round-trip, no wait.
+A reliability fix for dictation when a Bluetooth headset is in the picture:
 
-We also stripped the pipeline down to its fastest path:
-
-```
-Hold key → on-device speech recognition → paste
-```
-
-That means the old LLM/Ollama **cleanup** step is gone — there's no rewrite stage
-between your voice and the text anymore. The **Dictionary** (hotwords) page and the
-**Personalization** (per-app tone) page have been **removed** too. The result is a
-simpler, faster, no-rewrite experience that just transcribes what you say and pastes it.
+- **No more phantom text.** When your input device was busy on another device —
+  classically AirPods connected to your phone — OfflineVoice used to capture silence
+  and paste a hallucinated "Thank you." It now detects a silent capture, skips
+  transcription entirely, and tells you on the spot instead of pasting nonsense.
+- **The waveform tells the truth.** The listening bars now track your real mic level,
+  so they visibly flatten the moment no sound is reaching the mic.
+- **Pick your microphone.** Settings has a new input-device picker if you want to pin
+  dictation to your built-in mic. System default still follows macOS.
 
 ## Two recognition modes
 
